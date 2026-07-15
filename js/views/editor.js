@@ -1,7 +1,7 @@
 // Task editor view (create + edit).
 
 import * as db from '../db.js';
-import { esc, msToDateString, dateStringToMs, PRIORITIES, WEEKDAYS } from '../util.js';
+import { esc, msToDateString, msToTimeString, dateTimeToMs, PRIORITIES, WEEKDAYS } from '../util.js';
 
 export async function render(root, ctx, taskId) {
   const isNew = !taskId || taskId === 'new';
@@ -15,7 +15,7 @@ export async function render(root, ctx, taskId) {
     return;
   }
 
-  const t = task || { title: '', notes: '', categoryId: '', priority: 'LOW', value: 10, dueAt: null, recurrence: null };
+  const t = task || { title: '', notes: '', categoryId: '', priority: 'LOW', value: 10, dueAt: null, dueHasTime: false, recurrence: null };
   const rec = t.recurrence || null;
   const recType = rec ? rec.type : 'NONE';
   const recInterval = rec && rec.type === 'EVERY_N_DAYS' ? rec.intervalDays : 2;
@@ -54,10 +54,13 @@ export async function render(root, ctx, taskId) {
         </select>
       </label>
 
-      <label class="field">
-        <span>Due date</span>
-        <input type="date" id="f-due" value="${msToDateString(t.dueAt)}">
-      </label>
+      <div class="field">
+        <span>Due date <small class="field-hint">time optional</small></span>
+        <div class="due-row">
+          <input type="date" id="f-due" value="${msToDateString(t.dueAt)}">
+          <input type="time" id="f-due-time" value="${t.dueHasTime ? msToTimeString(t.dueAt) : ''}" aria-label="Due time">
+        </div>
+      </div>
 
       <div class="field">
         <span>Repeat</span>
@@ -108,12 +111,15 @@ export async function render(root, ctx, taskId) {
       root.querySelector('#f-title').focus();
       return;
     }
+    const dateStr = root.querySelector('#f-due').value;
+    const timeStr = root.querySelector('#f-due-time').value;
     const input = {
       title,
       notes: root.querySelector('#f-notes').value.trim(),
       categoryId: root.querySelector('#f-category').value || null,
       priority: root.querySelector('#f-priority').value,
-      dueAt: dateStringToMs(root.querySelector('#f-due').value),
+      dueAt: dateTimeToMs(dateStr, timeStr),
+      dueHasTime: !!(dateStr && timeStr),
       value: Number(valueInput.value),
       recurrence: buildRecurrence(root),
     };

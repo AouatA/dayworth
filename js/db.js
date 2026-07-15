@@ -110,7 +110,11 @@ export async function completeTask(id) {
   });
   // If this task recurs, spawn the next occurrence as a fresh active task.
   if (t.recurrence) {
-    const nextDue = computeNextDue(t.recurrence, t.dueAt);
+    let nextDue = computeNextDue(t.recurrence, t.dueAt);
+    // Preserve the original time-of-day on the next occurrence.
+    if (nextDue != null && t.dueHasTime && t.dueAt != null) {
+      nextDue = startOfDay(nextDue) + (t.dueAt - startOfDay(t.dueAt));
+    }
     await saveTask({
       title: t.title,
       notes: t.notes,
@@ -118,6 +122,7 @@ export async function completeTask(id) {
       priority: t.priority,
       value: t.value,
       dueAt: nextDue,
+      dueHasTime: t.dueHasTime ?? false,
       recurrence: t.recurrence,
     });
   }

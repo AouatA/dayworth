@@ -113,8 +113,8 @@ function filterChip(key, label, color) {
 function taskRow(t, catById) {
   const cat = t.categoryId ? catById[t.categoryId] : null;
   // Due-state coloring only matters for still-open tasks.
-  const state = t.isCompleted ? null : dueState(t.dueAt);
-  const dueLabel = t.isCompleted ? '' : formatDue(t.dueAt);
+  const state = t.isCompleted ? null : dueState(t.dueAt, t.dueHasTime);
+  const dueLabel = t.isCompleted ? '' : formatDue(t.dueAt, t.dueHasTime);
   const recLabel = formatRecurrence(t.recurrence);
   return `
     <li class="task ${t.isCompleted ? 'is-done' : ''} ${state ? 'due-' + state : ''}">
@@ -143,7 +143,7 @@ function isToday(ms) {
 }
 
 function dueRank(t) {
-  const s = dueState(t.dueAt);
+  const s = dueState(t.dueAt, t.dueHasTime);
   if (s === 'overdue') return 0;
   if (s === 'today') return 1;
   if (s === 'upcoming') return 2;

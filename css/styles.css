@@ -163,15 +163,25 @@ html, body {
 .editor { padding: 18px 16px; display: flex; flex-direction: column; gap: 18px; }
 .field { display: flex; flex-direction: column; gap: 7px; }
 .field > span { font-size: 0.82rem; color: var(--muted); font-weight: 600; display: flex; justify-content: space-between; }
-.field input[type=text], .field textarea, .field select, .field input[type=date], .field input[type=number] {
+.field input[type=text], .field textarea, .field select, .field input[type=date],
+.field input[type=time], .field input[type=number] {
   font: inherit; padding: 12px; border: 1px solid var(--line); border-radius: 11px;
   background: var(--surface); color: var(--text); width: 100%;
+}
+/* Keep the native date/time picker glyphs visible in dark mode */
+@media (prefers-color-scheme: dark) {
+  .field input[type=date]::-webkit-calendar-picker-indicator,
+  .field input[type=time]::-webkit-calendar-picker-indicator { filter: invert(0.8); }
 }
 .field input:focus, .field textarea:focus, .field select:focus { outline: 2px solid var(--brand); outline-offset: -1px; border-color: transparent; }
 .field textarea { resize: vertical; }
 input[type=range] { width: 100%; accent-color: var(--gold); }
 #value-out { color: var(--gold); font-weight: 800; font-size: 1.05rem; }
 .value-scale { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); }
+.due-row { display: flex; gap: 8px; }
+.due-row input[type=date] { flex: 1 1 60%; }
+.due-row input[type=time] { flex: 1 1 40%; }
+.field-hint { font-weight: 500; color: var(--muted); text-transform: none; font-size: 0.72rem; }
 .rec-sub { margin-top: 10px; }
 .rec-sub[hidden] { display: none; }
 .inline { font-size: 0.9rem; color: var(--text); display: inline-flex; align-items: center; gap: 6px; }

@@ -29,28 +29,58 @@ export function msToDateString(ms) {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
-// Classify a due date relative to today: 'overdue' | 'today' | 'upcoming' | null
-export function dueState(dueAt) {
+// ms -> HH:MM for <input type="time"> (local time).
+export function msToTimeString(ms) {
+  if (ms == null) return '';
+  const d = new Date(ms);
+  const p = (n) => String(n).padStart(2, '0');
+  return `${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+// Combine a yyyy-mm-dd date and an optional HH:MM time into local-time ms.
+export function dateTimeToMs(dateStr, timeStr) {
+  if (!dateStr) return null;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  if (timeStr) {
+    const [hh, mm] = timeStr.split(':').map(Number);
+    return new Date(y, m - 1, d, hh, mm, 0, 0).getTime();
+  }
+  return new Date(y, m - 1, d).getTime();
+}
+
+// Classify a due date: 'overdue' | 'today' | 'upcoming' | null.
+// When hasTime is true, "overdue" respects the exact time, not just the day.
+export function dueState(dueAt, hasTime) {
   if (dueAt == null) return null;
-  const today = startOfDay();
+  const now = Date.now();
+  if (hasTime) {
+    if (dueAt < now) return 'overdue';
+    return startOfDay(dueAt) === startOfDay(now) ? 'today' : 'upcoming';
+  }
+  const today = startOfDay(now);
   const due = startOfDay(dueAt);
   if (due < today) return 'overdue';
   if (due === today) return 'today';
   return 'upcoming';
 }
 
-// Human-friendly due label.
-export function formatDue(dueAt) {
+// Human-friendly due label, e.g. "Today 3:00 PM", "Fri", "2d overdue".
+export function formatDue(dueAt, hasTime) {
   if (dueAt == null) return '';
   const today = startOfDay();
-  const due = startOfDay(dueAt);
-  const diffDays = Math.round((due - today) / DAY_MS);
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Tomorrow';
-  if (diffDays === -1) return 'Yesterday';
-  if (diffDays < 0) return `${Math.abs(diffDays)}d overdue`;
-  if (diffDays < 7) return new Date(dueAt).toLocaleDateString(undefined, { weekday: 'short' });
-  return new Date(dueAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const diffDays = Math.round((startOfDay(dueAt) - today) / DAY_MS);
+  let dayPart;
+  if (diffDays === 0) dayPart = 'Today';
+  else if (diffDays === 1) dayPart = 'Tomorrow';
+  else if (diffDays === -1) dayPart = 'Yesterday';
+  else if (diffDays < 0) return `${Math.abs(diffDays)}d overdue`;
+  else if (diffDays < 7) dayPart = new Date(dueAt).toLocaleDateString(undefined, { weekday: 'short' });
+  else dayPart = new Date(dueAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  if (hasTime) {
+    const timePart = new Date(dueAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    return `${dayPart} ${timePart}`;
+  }
+  return dayPart;
 }
 
 // Day heading like "Today", "Yesterday", or "Mon, 14 Jul".
