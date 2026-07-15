@@ -102,6 +102,26 @@ export function esc(str) {
     .replaceAll("'", '&#39;');
 }
 
+// Map a task value (1-100) to a color on a calm->vibrant scale:
+// low = emerald, mid = amber, high = rose. Returns an "r, g, b" triple
+// (used to set a --vc CSS var; callers derive tint/border via color-mix).
+export function valueColor(v) {
+  const stops = [
+    { v: 1, c: [16, 185, 129] },   // emerald
+    { v: 50, c: [217, 154, 63] },  // amber / gold
+    { v: 100, c: [236, 72, 153] }, // rose
+  ];
+  const val = Math.min(100, Math.max(1, Number(v) || 1));
+  let a = stops[0];
+  let b = stops[stops.length - 1];
+  for (let i = 0; i < stops.length - 1; i++) {
+    if (val >= stops[i].v && val <= stops[i + 1].v) { a = stops[i]; b = stops[i + 1]; break; }
+  }
+  const t = (val - a.v) / (b.v - a.v || 1);
+  const ch = a.c.map((c, i) => Math.round(c + (b.c[i] - c) * t));
+  return `${ch[0]}, ${ch[1]}, ${ch[2]}`;
+}
+
 export const PRIORITIES = [
   { key: 'LOW', label: 'Low' },
   { key: 'MED', label: 'Medium' },

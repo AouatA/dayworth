@@ -139,11 +139,13 @@ html, body {
 .task.due-today .due { color: var(--today); font-weight: 600; }
 .recur { font-size: 0.8rem; color: var(--muted); }
 
-/* The "worth token" — the value of a task, minted in gold. */
+/* The "worth token" — colored on a value scale (low emerald -> high rose). */
 .value-badge {
   flex: 0 0 auto; min-width: 36px; text-align: center;
-  font-weight: 700; font-size: 0.85rem; color: var(--gold);
-  background: var(--gold-weak); border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  font-weight: 700; font-size: 0.85rem;
+  color: rgb(var(--vc, 183, 130, 44));
+  background: rgba(var(--vc, 183, 130, 44), 0.14);
+  border: 1px solid rgba(var(--vc, 183, 130, 44), 0.34);
   border-radius: 9px; padding: 5px 9px;
 }
 

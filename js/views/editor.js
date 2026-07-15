@@ -1,7 +1,7 @@
 // Task editor view (create + edit).
 
 import * as db from '../db.js';
-import { esc, msToDateString, msToTimeString, dateTimeToMs, PRIORITIES, WEEKDAYS } from '../util.js';
+import { esc, msToDateString, msToTimeString, dateTimeToMs, valueColor, PRIORITIES, WEEKDAYS } from '../util.js';
 
 export async function render(root, ctx, taskId) {
   const isNew = !taskId || taskId === 'new';
@@ -30,7 +30,7 @@ export async function render(root, ctx, taskId) {
 
     <main class="editor">
       <label class="field">
-        <span>Title</span>
+        <span>Title <small class="field-hint">required</small></span>
         <input type="text" id="f-title" value="${esc(t.title)}" placeholder="What needs doing?" autofocus>
       </label>
 
@@ -55,7 +55,7 @@ export async function render(root, ctx, taskId) {
       </label>
 
       <div class="field">
-        <span>Due date <small class="field-hint">time optional</small></span>
+        <span>Due date &amp; time <small class="field-hint">optional</small></span>
         <div class="due-row">
           <input type="date" id="f-due" value="${msToDateString(t.dueAt)}">
           <input type="time" id="f-due-time" value="${t.dueHasTime ? msToTimeString(t.dueAt) : ''}" aria-label="Due time">
@@ -95,7 +95,14 @@ export async function render(root, ctx, taskId) {
 
   const valueInput = root.querySelector('#f-value');
   const valueOut = root.querySelector('#value-out');
-  valueInput.addEventListener('input', () => { valueOut.textContent = valueInput.value; });
+  const paintValue = () => {
+    const c = `rgb(${valueColor(valueInput.value)})`;
+    valueOut.textContent = valueInput.value;
+    valueOut.style.color = c;
+    valueInput.style.accentColor = c;
+  };
+  paintValue();
+  valueInput.addEventListener('input', paintValue);
 
   const recTypeSel = root.querySelector('#f-rec-type');
   recTypeSel.addEventListener('change', () => {

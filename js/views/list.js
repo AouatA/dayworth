@@ -1,7 +1,7 @@
 // Task list (home) view.
 
 import * as db from '../db.js';
-import { esc, formatDue, dueState, formatRecurrence, PRIORITY_RANK } from '../util.js';
+import { esc, formatDue, dueState, formatRecurrence, valueColor, PRIORITY_RANK } from '../util.js';
 
 const PRIORITY_LABEL = { HIGH: 'High', MED: 'Med', LOW: 'Low' };
 
@@ -130,7 +130,7 @@ function taskRow(t, catById) {
           ${recLabel ? `<span class="recur" title="${esc(recLabel)}">↻</span>` : ''}
         </div>
       </div>
-      <span class="value-badge" title="Value">${t.value}</span>
+      <span class="value-badge" title="Value" style="--vc:${valueColor(t.value)}">${t.value}</span>
     </li>
   `;
 }

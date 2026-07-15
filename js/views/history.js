@@ -1,7 +1,7 @@
 // History view: completed tasks grouped by day, newest first.
 
 import * as db from '../db.js';
-import { esc, formatDayHeading } from '../util.js';
+import { esc, formatDayHeading, valueColor } from '../util.js';
 
 export async function render(root, ctx) {
   const [days, categories] = await Promise.all([db.getCompletedByDay(), db.getCategories()]);
@@ -46,6 +46,6 @@ function row(t, catById) {
           <span class="due">${esc(time)}</span>
         </div>
       </div>
-      <span class="value-badge">${t.value}</span>
+      <span class="value-badge" style="--vc:${valueColor(t.value)}">${t.value}</span>
     </li>`;
 }
