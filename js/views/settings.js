@@ -8,6 +8,8 @@ const DEFAULT_COLOR = '#6366f1';
 export async function render(root, ctx) {
   const categories = await db.getCategories();
 
+  const theme = currentTheme();
+
   root.innerHTML = `
     <header class="topbar">
       <button class="link-btn" id="done">Done</button>
@@ -16,6 +18,13 @@ export async function render(root, ctx) {
     </header>
 
     <main class="settings">
+      <h2 class="section-title">Appearance</h2>
+      <div class="seg theme-seg">
+        <button data-theme-choice="evergreen" class="${theme === 'evergreen' ? 'on' : ''}">Evergreen</button>
+        <button data-theme-choice="pink" class="${theme === 'pink' ? 'on' : ''}">Pink</button>
+      </div>
+      <p class="hint left">Saved on this device. Your Android and iPhone can each have their own look.</p>
+
       <h2 class="section-title">Categories</h2>
       <ul class="cat-list">
         ${categories.map((c) => `
@@ -44,6 +53,9 @@ export async function render(root, ctx) {
   `;
 
   root.querySelector('#done').addEventListener('click', () => ctx.navigate('#/list'));
+
+  root.querySelectorAll('[data-theme-choice]').forEach((b) =>
+    b.addEventListener('click', () => { applyTheme(b.dataset.themeChoice); ctx.refresh(); }));
 
   // --- Category edits ---
   root.querySelectorAll('.cat-row').forEach((row) => {
@@ -112,4 +124,14 @@ export async function render(root, ctx) {
 function setMsg(root, text) {
   const el = root.querySelector('#backup-msg');
   if (el) el.textContent = text;
+}
+
+function currentTheme() {
+  return document.documentElement.getAttribute('data-theme') === 'pink' ? 'pink' : 'evergreen';
+}
+
+function applyTheme(name) {
+  try { localStorage.setItem('dayworth-theme', name); } catch (e) {}
+  if (name === 'pink') document.documentElement.setAttribute('data-theme', 'pink');
+  else document.documentElement.removeAttribute('data-theme');
 }

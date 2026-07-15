@@ -14,6 +14,7 @@ export async function render(root, ctx) {
   const delta = a.thisWeekValue - a.lastWeekValue;
   const deltaPct = a.lastWeekValue > 0 ? Math.round((delta / a.lastWeekValue) * 100) : null;
   const maxCat = Math.max(1, ...a.byCategory.map((c) => c.value));
+  const streakIcon = document.documentElement.getAttribute('data-theme') === 'pink' ? '💖' : '🔥';
 
   root.innerHTML = `
     <header class="topbar"><h1>Stats</h1></header>
@@ -38,7 +39,7 @@ export async function render(root, ctx) {
       <div class="chart-wrap"><canvas id="chart" height="200"></canvas></div>
 
       <section class="tiles">
-        ${tile(a.streak, a.streak === 1 ? 'day streak' : 'day streak', '🔥')}
+        ${tile(a.streak, 'day streak', streakIcon)}
         ${tile(a.avgPerTask, 'avg / task')}
         ${tile(a.totalValue, `value · ${range}d`)}
         ${tile(a.best.value > 0 ? a.best.value : 0, 'best day')}

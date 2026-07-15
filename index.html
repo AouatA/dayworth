@@ -7,7 +7,29 @@
   <title>DayWorth</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icons/icon.svg">
+
+  <!-- iOS: run fullscreen (no Safari bars) when added to the Home Screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="DayWorth">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+  <!-- Pick the theme before first paint to avoid a flash. Pink by default on iPhone. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('dayworth-theme');
+        if (!t) {
+          var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+          t = iOS ? 'pink' : 'evergreen';
+        }
+        if (t === 'pink') document.documentElement.setAttribute('data-theme', 'pink');
+      } catch (e) {}
+    })();
+  </script>
+
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>

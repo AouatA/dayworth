@@ -270,3 +270,83 @@ canvas { width: 100%; display: block; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ============================================================
+   PINK "cute & decorative" theme  (data-theme="pink")
+   Candy palette, rounded type, hearts + sparkle, soft gradients.
+   ============================================================ */
+:root[data-theme="pink"] {
+  --bg: #fff2f8;
+  --surface: #ffffff;
+  --surface-2: #fde7f1;
+  --text: #4a1d3f;
+  --muted: #a76b8e;
+  --line: #f7d7e7;
+  --brand: #ec4899;
+  --brand-weak: rgba(236, 72, 153, 0.12);
+  --gold: #d69a3f;
+  --gold-weak: rgba(214, 154, 63, 0.14);
+  --danger: #e0567f;
+  --overdue: #e0567f;
+  --today: #d69a3f;
+  --shadow: 0 2px 12px rgba(236, 72, 153, 0.12);
+  --radius: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="pink"] {
+    --bg: #241019;
+    --surface: #2e1622;
+    --surface-2: #3a1c2c;
+    --text: #fce7f1;
+    --muted: #c89bb0;
+    --line: #43263a;
+    --brand: #f472b6;
+    --brand-weak: rgba(244, 114, 182, 0.16);
+    --gold: #e8c06a;
+    --gold-weak: rgba(232, 192, 106, 0.16);
+    --danger: #f18aa5;
+    --overdue: #f18aa5;
+    --today: #e8c06a;
+    --shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Rounded, softer type — becomes SF Pro Rounded on iPhone. */
+:root[data-theme="pink"] .topbar h1,
+:root[data-theme="pink"] .worth-value,
+:root[data-theme="pink"] .worth-eyebrow,
+:root[data-theme="pink"] .tile-num,
+:root[data-theme="pink"] .day-name,
+:root[data-theme="pink"] .wow-now,
+:root[data-theme="pink"] .section-title {
+  font-family: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN", Quicksand, system-ui, sans-serif;
+}
+
+/* Candy hero + sparkle */
+:root[data-theme="pink"] .worth-hero {
+  background: linear-gradient(135deg, #ffe3f1 0%, #ffd6ea 45%, #f3e0ff 100%);
+  border-color: #f6c9de;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="pink"] .worth-hero {
+    background: linear-gradient(135deg, #3a1c2c 0%, #2e1622 55%, #331a33 100%);
+    border-color: #4a2a3c;
+  }
+}
+:root[data-theme="pink"] .worth-eyebrow::after { content: " ✨"; }
+
+/* Heart-tagged worth tokens */
+:root[data-theme="pink"] .value-badge::before { content: "♥"; font-size: 0.72em; margin-right: 2px; }
+
+/* Gradient FAB, chips, nav */
+:root[data-theme="pink"] .fab {
+  background: linear-gradient(135deg, #f985c4, #ec4899 60%, #d648a0);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.45);
+  border-radius: 20px;
+}
+:root[data-theme="pink"] .filter-chip.active,
+:root[data-theme="pink"] .seg button.on {
+  background: linear-gradient(135deg, #f472b6, #ec4899);
+}
+:root[data-theme="pink"] .task { border-radius: 18px; }
+:root[data-theme="pink"] .day-tally strong { color: var(--brand); }

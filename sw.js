@@ -1,7 +1,7 @@
 // DayWorth service worker: precache the app shell for offline use.
 // Bump CACHE version whenever the shell files change.
 
-const CACHE = 'dayworth-v3';
+const CACHE = 'dayworth-v4';
 
 const ASSETS = [
   './',
@@ -19,9 +19,12 @@ const ASSETS = [
   './js/views/settings.js',
   './icons/icon.svg',
   './icons/icon-maskable.svg',
+  './icons/icon-pink.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
+  './icons/icon-pink-512.png',
+  './icons/apple-touch-icon.png',
 ];
 
 self.addEventListener('install', (event) => {
