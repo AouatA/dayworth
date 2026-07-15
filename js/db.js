@@ -88,7 +88,10 @@ export async function saveTask(input) {
   return task;
 }
 
+// Delete a task AND its completion history so stats/history no longer count it.
 export async function deleteTask(id) {
+  const logs = (await idb.getAll('completionLog')).filter((l) => l.taskId === id);
+  for (const l of logs) await idb.del('completionLog', l.id);
   return idb.del('tasks', id);
 }
 
@@ -103,6 +106,7 @@ export async function completeTask(id) {
     taskId: t.id,
     completedAt: t.completedAt,
     value: t.value,
+    categoryId: t.categoryId ?? null,
   });
   // If this task recurs, spawn the next occurrence as a fresh active task.
   if (t.recurrence) {
@@ -173,6 +177,91 @@ export async function getDailySeries(days) {
     }
   }
   return out;
+}
+
+function buildSeries(logs, days) {
+  const todayStart = startOfDay();
+  const out = [];
+  for (let i = days - 1; i >= 0; i--) out.push({ start: todayStart - i * DAY_MS, count: 0, value: 0 });
+  const first = out[0].start;
+  for (const l of logs) {
+    const idx = Math.round((startOfDay(l.completedAt) - first) / DAY_MS);
+    if (idx >= 0 && idx < out.length) { out[idx].count += 1; out[idx].value += l.value; }
+  }
+  return out;
+}
+
+function sumWindow(logs, startInc, endExc) {
+  let value = 0, count = 0;
+  for (const l of logs) {
+    if (l.completedAt >= startInc && l.completedAt < endExc) { value += l.value; count += 1; }
+  }
+  return { value, count };
+}
+
+// Consecutive days (ending today, or yesterday if today is still empty) with >=1 completion.
+function computeStreak(logs) {
+  const daySet = new Set(logs.map((l) => startOfDay(l.completedAt)));
+  let cursor = startOfDay();
+  if (!daySet.has(cursor)) cursor -= DAY_MS;
+  let streak = 0;
+  while (daySet.has(cursor)) { streak += 1; cursor -= DAY_MS; }
+  return streak;
+}
+
+// Everything the Stats screen needs for a given range (7 or 30 days).
+export async function getAnalytics(range) {
+  const logs = await idb.getAll('completionLog');
+  const series = buildSeries(logs, range);
+  const totalValue = series.reduce((s, d) => s + d.value, 0);
+  const totalCount = series.reduce((s, d) => s + d.count, 0);
+  const best = series.reduce((b, d) => (d.value > b.value ? d : b), { value: -1, start: null });
+  const todayStart = startOfDay();
+
+  const thisWeek = sumWindow(logs, todayStart - 6 * DAY_MS, todayStart + DAY_MS);
+  const lastWeek = sumWindow(logs, todayStart - 13 * DAY_MS, todayStart - 6 * DAY_MS);
+
+  const firstDay = series[0].start;
+  const rangeEnd = todayStart + DAY_MS;
+  const byCat = new Map();
+  for (const l of logs) {
+    if (l.completedAt >= firstDay && l.completedAt < rangeEnd) {
+      const k = l.categoryId ?? '__none__';
+      const cur = byCat.get(k) || { value: 0, count: 0 };
+      cur.value += l.value; cur.count += 1;
+      byCat.set(k, cur);
+    }
+  }
+  const byCategory = [...byCat.entries()]
+    .map(([id, v]) => ({ categoryId: id === '__none__' ? null : id, value: v.value, count: v.count }))
+    .sort((a, b) => b.value - a.value);
+
+  return {
+    series, totalValue, totalCount, best,
+    avgPerDay: Math.round(totalValue / range),
+    avgPerTask: totalCount ? Math.round(totalValue / totalCount) : 0,
+    streak: computeStreak(logs),
+    thisWeekValue: thisWeek.value,
+    lastWeekValue: lastWeek.value,
+    byCategory,
+  };
+}
+
+// Completed tasks grouped by day, newest day first, for the History screen.
+export async function getCompletedByDay() {
+  const tasks = (await idb.getAll('tasks')).filter((t) => t.isCompleted && t.completedAt);
+  const byDay = new Map();
+  for (const t of tasks) {
+    const day = startOfDay(t.completedAt);
+    if (!byDay.has(day)) byDay.set(day, []);
+    byDay.get(day).push(t);
+  }
+  return [...byDay.entries()]
+    .sort((a, b) => b[0] - a[0])
+    .map(([dayStart, list]) => {
+      list.sort((a, b) => b.completedAt - a.completedAt);
+      return { dayStart, tasks: list, count: list.length, value: list.reduce((s, t) => s + t.value, 0) };
+    });
 }
 
 // ---- Backup (export / import) ----

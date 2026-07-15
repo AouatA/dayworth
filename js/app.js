@@ -4,6 +4,7 @@ import { seedIfEmpty } from './db.js';
 import * as listView from './views/list.js';
 import * as editorView from './views/editor.js';
 import * as statsView from './views/stats.js';
+import * as historyView from './views/history.js';
 import * as settingsView from './views/settings.js';
 
 const root = document.getElementById('view');
@@ -27,6 +28,9 @@ async function route() {
   } else if (parts[0] === 'stats') {
     await statsView.render(root, ctx);
     setNav('stats');
+  } else if (parts[0] === 'history') {
+    await historyView.render(root, ctx);
+    setNav('history');
   } else {
     await listView.render(root, ctx);
     setNav('list');
@@ -45,7 +49,7 @@ function setNav(active) {
 }
 
 nav.querySelectorAll('.nav-btn').forEach((b) => {
-  b.addEventListener('click', () => ctx.navigate(b.dataset.nav === 'stats' ? '#/stats' : '#/list'));
+  b.addEventListener('click', () => ctx.navigate('#/' + (b.dataset.nav === 'list' ? 'list' : b.dataset.nav)));
 });
 
 window.addEventListener('hashchange', route);

@@ -1,7 +1,7 @@
 // DayWorth service worker: precache the app shell for offline use.
 // Bump CACHE version whenever the shell files change.
 
-const CACHE = 'dayworth-v2';
+const CACHE = 'dayworth-v3';
 
 const ASSETS = [
   './',
@@ -15,6 +15,7 @@ const ASSETS = [
   './js/views/list.js',
   './js/views/editor.js',
   './js/views/stats.js',
+  './js/views/history.js',
   './js/views/settings.js',
   './icons/icon.svg',
   './icons/icon-maskable.svg',

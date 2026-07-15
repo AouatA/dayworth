@@ -53,6 +53,15 @@ export function formatDue(dueAt) {
   return new Date(dueAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
+// Day heading like "Today", "Yesterday", or "Mon, 14 Jul".
+export function formatDayHeading(dayMs) {
+  const today = startOfDay();
+  const diff = Math.round((startOfDay(dayMs) - today) / DAY_MS);
+  if (diff === 0) return 'Today';
+  if (diff === -1) return 'Yesterday';
+  return new Date(dayMs).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
 // Escape text for safe insertion into innerHTML.
 export function esc(str) {
   return String(str ?? '')

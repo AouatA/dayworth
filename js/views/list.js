@@ -112,8 +112,9 @@ function filterChip(key, label, color) {
 
 function taskRow(t, catById) {
   const cat = t.categoryId ? catById[t.categoryId] : null;
-  const state = dueState(t.dueAt);
-  const dueLabel = formatDue(t.dueAt);
+  // Due-state coloring only matters for still-open tasks.
+  const state = t.isCompleted ? null : dueState(t.dueAt);
+  const dueLabel = t.isCompleted ? '' : formatDue(t.dueAt);
   const recLabel = formatRecurrence(t.recurrence);
   return `
     <li class="task ${t.isCompleted ? 'is-done' : ''} ${state ? 'due-' + state : ''}">
